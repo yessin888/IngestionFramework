@@ -1,0 +1,3 @@
+dataset_id;type_origin;subtype_origin;tablename;type_read;type_file;source_path;raw_path;std_path;type_load;incremental_field;incremental_mask;partition_field
+1;FILE;;sales;STORAGE_READ;CSV;data/landing/files_sales;data/raw/sales;data/std/sales;FULL;;;
+2;ORACLE;;customers;STORAGE_READ;CSV;data/landing/oracle_customers;data/raw/customers;data/std/customers;INCREMENTAL;last_update_date;dd-MM-yyyy;last_update_date

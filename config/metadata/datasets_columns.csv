@@ -1,0 +1,10 @@
+dataset_id;column_order;source_name;source_type;dest_name;dest_type;is_sensitive;is_audit;is_business_key
+1;1;order_id;string;order_id;string;N;N;Y
+1;2;customer_id;string;customer_id;string;N;N;N
+1;3;amount;double;amount;double;N;N;N
+1;4;order_date;string;order_date;string;N;N;N
+2;1;cust_id;string;customer_id;string;N;N;Y
+2;2;full_name;string;full_name;string;N;N;N
+2;3;email;string;email;string;Y;N;N
+2;4;phone;string;phone;string;Y;N;N
+2;5;last_update_date;string;last_update_date;string;N;N;N

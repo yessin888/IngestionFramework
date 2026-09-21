@@ -1,0 +1,2 @@
+dataset_id;type_origin;subtype_origin;tablename;type_read;type_file;source_path;raw_path;std_path;type_load;incremental_field;incremental_mask;partition_field
+1;TEST;;events;STORAGE_READ;CSV;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/incremental/landing;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/incremental/raw/events;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/incremental/std/events;INCREMENTAL;updated_at;yyyy-MM-dd;updated_at

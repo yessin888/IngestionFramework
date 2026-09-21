@@ -1,0 +1,4 @@
+dataset_id;column_order;source_name;source_type;dest_name;dest_type;is_sensitive;is_audit;is_business_key
+2;1;id;string;customer_id;string;N;N;Y
+2;2;name;string;name;string;N;N;N
+2;3;email;string;email;string;Y;N;N

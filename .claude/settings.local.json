@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Users/Yessin/ingestion-framework/Scripts/python.exe\" src/jobs_entrypoints/run_source_raw.py --job_timestamp 2026-07-13T08:00:00 --environment dev --type_read STORAGE_READ --run_id run_delta_002 --dataset_ids 1,2)",
+      "Bash(\"/c/Users/Yessin/ingestion-framework/Scripts/python.exe\" -m pytest --version)",
+      "Bash(\"/c/Users/Yessin/ingestion-framework/Scripts/python.exe\" -m pip install pytest)"
+    ]
+  }
+}

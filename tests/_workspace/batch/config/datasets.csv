@@ -1,0 +1,2 @@
+dataset_id;type_origin;subtype_origin;tablename;type_read;type_file;source_path;raw_path;std_path;type_load;incremental_field;incremental_mask;partition_field
+2;TEST;;customers;STORAGE_READ;CSV;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/batch/landing;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/batch/raw/customers;C:/Users/Yessin/Documents/Proyectos/ingestion-framework/tests/_workspace/batch/std/customers;FULL;;;
