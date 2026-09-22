@@ -46,7 +46,7 @@ def apply_incremental_filter(df: DataFrame, dataset: DatasetMetadata, watermark:
 
     watermark_dt = datetime.fromisoformat(watermark)
     logger.info(f"[INCREMENTAL] filtering '{dataset.incremental_field}' (mask={dataset.incremental_mask}) > {watermark}")
-
+    # TODO alinear el todo de abajo con esto
     return (
         df.withColumn("_incremental_field_parsed", F.to_timestamp(F.col(dataset.incremental_field), dataset.incremental_mask))
         .filter(F.col("_incremental_field_parsed") > F.lit(watermark_dt))
@@ -84,7 +84,7 @@ def get_current_watermark(spark: SparkSession, path: str, dataset: DatasetMetada
 
     if not DeltaTable.isDeltaTable(spark, path):
         return None
-
+    # TODO revisar si puedo hacer que se aprovechen estadísticas Delta para obtener el max_value más eficientemente. Es decir, comprobar si por hacer el cast se está leyendo todo los archivos
     max_value = (
         spark.read.format("delta").load(path)
         .agg(F.max(F.to_timestamp(F.col(field_name), dataset.incremental_mask)).alias("max_v"))
