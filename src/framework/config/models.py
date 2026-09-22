@@ -1,6 +1,9 @@
 """Domain models for the metadata tables (datasets, datasets_columns)."""
 from dataclasses import dataclass, field
 from typing import List, Optional
+from datetime import datetime
+from enum import Enum
+
 
 
 @dataclass
@@ -120,3 +123,72 @@ class DatasetMetadata:
             if c.source_name == source_name:
                 return c.dest_name
         return source_name
+
+
+class Status(Enum):
+    SUCCEEDED = "SUCCEEDED"
+    SKIPPED = "SKIPPED"
+    FAILED = "FAILED"
+
+@dataclass
+class ControlData:
+    dataset_id: str
+    run_id: str
+    job_name: str
+    type_origin: str
+    subtype_origin: str
+    tablename: str
+    type_read: str
+    start_time: datetime
+    end_time: datetime
+    status: Status
+    readed_rows: int
+    written_rows: int
+    error_rows: int
+
+    # Campos opcionales - dataclass requiere valores por defecto al final 
+    status_message: Optional[str] = None
+    old_watermark: Optional[str] = None
+    new_watermark: Optional[str] = None
+
+    @staticmethod
+    def from_row(row: dict) -> "ControlData":
+        return ControlData(
+            dataset_id=row["dataset_id"],
+            run_id=row["run_id"],
+            job_name=row["job_name"],
+            type_origin=row["type_origin"],
+            subtype_origin=row["subtype_origin"],
+            tablename=row["tablename"],
+            type_read=row["type_read"],
+            start_time=row["start_time"],
+            end_time=row["end_time"],
+            status=Status(row["status"]),
+            status_message=row.get("status_message"),
+            readed_rows=row["readed_rows"],
+            written_rows=row["written_rows"],
+            error_rows=row["error_rows"],
+            old_watermark=row.get("old_watermark"),
+            new_watermark=row.get("new_watermark"),
+        )
+
+    def to_spark_row(self) -> dict:
+        """Serialize the control record into Spark-compatible primitive values."""
+        return {
+            "dataset_id": self.dataset_id,
+            "run_id": self.run_id,
+            "job_name": self.job_name,
+            "type_origin": self.type_origin,
+            "subtype_origin": self.subtype_origin,
+            "tablename": self.tablename,
+            "type_read": self.type_read,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "status": self.status.value,
+            "readed_rows": self.readed_rows,
+            "written_rows": self.written_rows,
+            "error_rows": self.error_rows,
+            "status_message": self.status_message,
+            "old_watermark": self.old_watermark,
+            "new_watermark": self.new_watermark,
+        }
