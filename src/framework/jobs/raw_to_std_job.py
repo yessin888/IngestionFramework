@@ -13,6 +13,7 @@ from framework.jobs.base_job import BaseJob
 from framework.transformations.audit_columns import add_audit_columns
 from framework.transformations.column_selector import select_and_rename
 from framework.transformations.incremental import apply_incremental_filter, get_current_watermark
+from framework.transformations.quality import check_quality
 from framework.writers.std_writer import StdWriter
 
 
@@ -37,6 +38,7 @@ class RawToStdJob(BaseJob):
                         dataset_id=dataset_metadata.dataset_id,
                         run_id=self.job_config.run_id,
                         job_name="raw_to_std",
+                        job_timestamp=self.job_config.job_timestamp,
                         type_origin=dataset_metadata.type_origin,
                         subtype_origin=dataset_metadata.subtype_origin,
                         tablename=dataset_metadata.tablename,
@@ -65,6 +67,10 @@ class RawToStdJob(BaseJob):
 
         df_raw = self.spark.read.format("delta").load(dataset_metadata.raw_path)
 
+        filtered_df = check_quality(df_raw, dataset_metadata.quality_rules, logger)
+
+        filtered_df.show(truncate=False)
+
         old_watermark = None
 
         if dataset_metadata.type_load.upper() == "INCREMENTAL":
@@ -87,6 +93,7 @@ class RawToStdJob(BaseJob):
                 dataset_id=dataset_metadata.dataset_id,
                 run_id=self.job_config.run_id,
                 job_name="raw_to_std",
+                job_timestamp=self.job_config.job_timestamp,
                 type_origin=dataset_metadata.type_origin,
                 subtype_origin=dataset_metadata.subtype_origin,
                 tablename=dataset_metadata.tablename,

@@ -77,7 +77,7 @@ class BaseJob(ABC):
             schema=CONTROL_DATA_SCHEMA,
         )
 
-        df.write.format("delta").mode("append").save(CONTROL_TABLE_PATH)
+        df.write.format("delta").option("mergeSchema", "true").mode("append").save(CONTROL_TABLE_PATH)
 
         self.logger.info(
             f"[CONTROL_DATA] persisted {len(self.control_data)} records "

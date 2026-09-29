@@ -1,9 +1,10 @@
 """Access layer for the datasets and datasets_columns metadata tables."""
+import os
 from typing import List
 
 from pyspark.sql import SparkSession
 
-from framework.config.models import DatasetMetadata, DatasetColumnMetadata
+from framework.config.models import DatasetMetadata, DatasetColumnMetadata, DatasetQuality
 
 
 class MetadataRepository:
@@ -20,6 +21,7 @@ class MetadataRepository:
         self.spark = spark
         self.datasets_path = f"{metadata_base_path}/datasets.csv"
         self.datasets_columns_path = f"{metadata_base_path}/datasets_columns.csv"
+        self.dataset_quality_path = f"{metadata_base_path}/dataset_quality.csv"
 
     def _read_metadata_csv(self, path: str):
         return (
@@ -54,6 +56,7 @@ class MetadataRepository:
         datasets_metadata = [DatasetMetadata.from_row(r) for r in rows]
         for dataset in datasets_metadata:
             dataset.columns = self.get_columns(dataset.dataset_id)
+            dataset.quality_rules = self.get_quality(dataset.dataset_id)
 
         return datasets_metadata
 
@@ -79,3 +82,21 @@ class MetadataRepository:
         columns = [DatasetColumnMetadata.from_row(r) for r in rows]
         columns.sort(key=lambda c: c.column_order)
         return columns
+
+    def get_quality(self, dataset_id: str) -> List[DatasetQuality]:
+        """Return the quality rules configured for a dataset.
+
+        Args:
+            dataset_id: dataset_id to look up.
+
+        Returns:
+            A DatasetQuality with no rules when dataset_quality.csv is
+            missing or the dataset has no rules configured.
+        """
+        if not os.path.exists(self.dataset_quality_path):
+            raise FileNotFoundError(f"Dataset quality metadata file not found at {self.dataset_quality_path}")
+
+        df = self._read_metadata_csv(self.dataset_quality_path)
+        rows = df.filter(df.dataset_id == dataset_id).collect()
+        qualityRules = [DatasetQuality.from_row(r) for r in rows]
+        return qualityRules

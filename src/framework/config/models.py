@@ -1,9 +1,48 @@
 """Domain models for the metadata tables (datasets, datasets_columns)."""
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 
+from pyspark.sql import Column
+
+
+def _split_rules(value: Optional[str]) -> List[str]:
+    """Split a rules cell ("rule1 | rule2") into a clean list of SQL expressions."""
+    if not value:
+        return []
+    return [rule.strip() for rule in str(value).split("|") if rule.strip()]
+
+
+@dataclass
+class DatasetQuality:
+    """One row of dataset_quality.csv: the quality rules configured for a column."""
+
+    dataset_id: str
+    column_name: str
+    column_type: str
+    pk_column: str = ""
+    ck_rules: List[str] = field(default_factory=list)
+    regex_rules: List[str] = field(default_factory=list)
+    null_rules: List[str] = field(default_factory=list)
+
+    @staticmethod
+    def from_row(row) -> "DatasetQuality":
+        """Build a DatasetQuality from a Spark Row read from dataset_quality.csv."""
+        return DatasetQuality(
+            dataset_id=str(row["dataset_id"]),
+            column_name=(row["column_name"] or "").strip(),
+            column_type=(row["column_type"] or "").strip(),
+            pk_column=(row["pk_column"] or "").strip(),
+            ck_rules=_split_rules(row["ck_rules"]),
+            regex_rules=_split_rules(row["regex_rules"]),
+            null_rules=_split_rules(row["null_rules"]),
+        )
+
+@dataclass
+class qualityRule:
+    name: str
+    expression: Column
 
 
 @dataclass
@@ -61,6 +100,7 @@ class DatasetMetadata:
     incremental_mask: Optional[str]
     partition_field: Optional[str]
     columns: List[DatasetColumnMetadata] = field(default_factory=list)
+    quality_rules: List[DatasetQuality] = field(default_factory=list)
 
     @staticmethod
     def from_row(row) -> "DatasetMetadata":
@@ -135,6 +175,7 @@ class ControlData:
     dataset_id: str
     run_id: str
     job_name: str
+    job_timestamp: datetime
     type_origin: str
     subtype_origin: str
     tablename: str
@@ -157,6 +198,7 @@ class ControlData:
             dataset_id=row["dataset_id"],
             run_id=row["run_id"],
             job_name=row["job_name"],
+            job_timestamp=row["job_timestamp"],
             type_origin=row["type_origin"],
             subtype_origin=row["subtype_origin"],
             tablename=row["tablename"],
@@ -178,6 +220,7 @@ class ControlData:
             "dataset_id": self.dataset_id,
             "run_id": self.run_id,
             "job_name": self.job_name,
+            "job_timestamp": self.job_timestamp,
             "type_origin": self.type_origin,
             "subtype_origin": self.subtype_origin,
             "tablename": self.tablename,

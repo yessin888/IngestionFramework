@@ -1,0 +1,5 @@
+dataset_id;column_name;column_type;pk_column;ck_rules;regex_rules;null_rules
+1;order_id;string;order_id;;;order_id IS NOT NULL
+1;amount;double;;amount > 0;;
+2;phone;string;phone;;;phone IS NOT NULL
+2;email;string;;;email RLIKE '^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$';
